@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GeoEarn — Earn Real Rewards IRL</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --bg:#0b0b0f;--bg2:#131318;--bg3:#1a1a22;--bg4:#22222c;
+  --card:#1e1e28;--card-shadow:none;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f8;--text2:#9090b0;--text3:#50506a;
+  --accent:#a855f7;--accent2:#7c3aed;--accent3:#c084fc;
+  --green:#22d3a0;--green2:#16a37a;--red:#f87171;--gold:#fbbf24;
+  --glow:rgba(168,85,247,0.35);--glow2:rgba(168,85,247,0.12);
+  --map-road:rgba(255,255,255,0.055);--map-grid:rgba(255,255,255,0.038);
+  --radius:16px;--radius2:12px;--radius3:8px;
+  --tr:.25s ease;
+}
+.light{
+  --bg:#F8FAFC;--bg2:#FFFFFF;--bg3:#F1F5F9;--bg4:#E2E8F0;
+  --card:#FFFFFF;--card-shadow:0 1px 4px rgba(15,23,42,0.06),0 6px 20px rgba(15,23,42,0.04);
+  --border:rgba(15,23,42,0.08);--border2:rgba(15,23,42,0.14);
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --accent:#7c3aed;--accent2:#6d28d9;--accent3:#7c3aed;
+  --green:#059669;--green2:#047857;--red:#DC2626;--gold:#B45309;
+  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.07);
+  --map-road:rgba(15,23,42,0.055);--map-grid:rgba(15,23,42,0.04);
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+#app{width:100%;max-width:430px;height:100dvh;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--bg);transition:background var(--tr),color var(--tr)}
+
+/* ─── ONBOARDING ─── */
+#onboarding{position:absolute;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;transition:background var(--tr)}
+#onboarding.hidden{display:none}
+.ob-slides{flex:1;position:relative;overflow:hidden}
+.ob-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px 16px;opacity:0;transform:translateX(50px);transition:.45s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.ob-slide.active{opacity:1;transform:translateX(0);pointer-events:all}
+.ob-slide.exit{opacity:0;transform:translateX(-50px)}
+.ob-art{width:160px;height:160px;position:relative;flex-shrink:0;margin-bottom:36px}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.ob-blob{position:absolute;border-radius:50%;animation:fl 3s ease-in-out infinite}
+.ob-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:52px;animation:fl 2.6s ease-in-out infinite}
+.ob-float1{position:absolute;top:8px;right:12px;font-size:22px;animation:fl 2.8s ease-in-out infinite;animation-delay:.4s}
+.ob-float2{position:absolute;bottom:10px;left:10px;font-size:20px;animation:fl 3.1s ease-in-out infinite;animation-delay:.8s}
+.ob-title{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;text-align:center;line-height:1.22;margin-bottom:12px;color:var(--text)}
+.ob-sub{font-size:15px;color:var(--text2);text-align:center;line-height:1.65;max-width:272px}
+.ob-footer{flex-shrink:0;padding:20px 28px 40px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.ob-dots{display:flex;gap:5px}
+.ob-dot{width:6px;height:6px;border-radius:3px;background:var(--border2);transition:.3s}
+.ob-dot.on{width:20px;background:var(--accent)}
+.ob-btn{width:100%;padding:16px;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;border:none;cursor:pointer;box-shadow:0 4px 22px var(--glow);transition:.2s}
+.ob-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px var(--glow)}
+.ob-btn:active{transform:scale(.98)}
+.ob-btn:disabled{opacity:.4;cursor:default;transform:none}
+
+/* Role step */
+.ob-role-wrap{width:100%;display:flex;flex-direction:column;gap:10px}
+.ob-role-card{width:100%;padding:16px 18px;background:var(--card);border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:14px;transition:.2s;box-shadow:var(--card-shadow)}
+.ob-role-card:hover{border-color:var(--accent);background:var(--glow2)}
+.ob-role-card.sel{border-color:var(--accent);background:var(--glow2);box-shadow:0 0 0 3px var(--glow2)}
+.ob-role-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.ob-role-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:3px;color:var(--text)}
+.ob-role-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ─── TOPBAR ─── */
+.topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:13px 18px 11px;background:var(--bg);border-bottom:1px solid var(--border);z-index:10;transition:background var(--tr),border-color var(--tr)}
+.light .topbar{box-shadow:0 1px 0 rgba(15,23,42,0.06)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar-r{display:flex;align-items:center;gap:7px}
+.bal-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent3);transition:var(--tr)}
+.mode-badge{font-size:10px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:10px;background:var(--glow2);color:var(--accent3);border:1px solid var(--border2);transition:var(--tr)}
+.mode-badge.biz{background:rgba(180,83,9,0.1);color:var(--gold);border-color:rgba(180,83,9,0.2)}
+.theme-btn{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.2s}
+.theme-btn:hover{background:var(--bg4)}
+
+/* ─── SCREENS ─── */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:none}
+.screen.active{display:flex;flex-direction:column}
+.screen::-webkit-scrollbar{display:none}
+.si{padding:20px}
+.stitle{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:20px;color:var(--text)}
+
+/* ─── MAP ─── */
+.map-wrap{flex:1;position:relative;background:var(--bg2);overflow:hidden;min-height:250px;transition:background var(--tr)}
+.light .map-wrap{background:linear-gradient(150deg,#EEF2FF 0%,#F8FAFC 100%)}
+.map-grid-bg{width:100%;height:100%;background-image:linear-gradient(var(--map-grid) 1px,transparent 1px),linear-gradient(90deg,var(--map-grid) 1px,transparent 1px);background-size:40px 40px;position:absolute;transition:background-image var(--tr)}
+.road-h{position:absolute;left:0;right:0;height:3px;background:var(--map-road);transition:background var(--tr)}
+.road-v{position:absolute;top:0;bottom:0;width:3px;background:var(--map-road);transition:background var(--tr)}
+.map-lbl{position:absolute;font-size:9px;color:var(--text3);font-weight:600;white-space:nowrap;letter-spacing:.04em}
+.u-dot{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(168,85,247,.22),0 0 16px rgba(168,85,247,.4);left:50%;top:50%;transform:translate(-50%,-50%);z-index:5}
+.u-pulse{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--accent);animation:pulse 2.3s ease-out infinite;left:50%;top:50%;transform:translate(-50%,-50%)}
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.55}100%{transform:translate(-50%,-50%) scale(3);opacity:0}}
+.mkr{position:absolute;cursor:pointer;display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);z-index:4;transition:.2s}
+.mkr:hover{transform:translate(-50%,-100%) scale(1.1)}
+.mkr.visited .pin{background:var(--bg4) !important;border-color:var(--border2);box-shadow:none}
+.mkr.visited .pin::after{background:var(--text3)}
+.mkr.visited .m-rew{background:var(--bg3);color:var(--text3)}
+.pin{width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid rgba(255,255,255,.2);position:relative;transition:.3s;box-shadow:0 3px 10px rgba(0,0,0,.28)}
+.pin::after{content:'';width:9px;height:9px;border-radius:50%;background:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.m-rew{position:absolute;bottom:calc(100% + 5px);background:var(--card);border:1px solid var(--border2);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--gold);white-space:nowrap;font-family:'Syne',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.map-bottom{padding:12px 14px 14px;background:linear-gradient(transparent,var(--bg) 22%);position:relative;z-index:3;margin-top:-32px;transition:background var(--tr)}
+.map-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr),box-shadow var(--tr)}
+.nearby-hd{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+.task-list{display:flex;flex-direction:column;gap:6px}
+.ti{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius2);border:1px solid var(--border);cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.ti:hover{border-color:var(--border2);background:var(--bg4)}
+.ti.done{opacity:.5;pointer-events:none}
+.ti.done::after{content:'✓ Done';position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--green)}
+.ti-ico{width:36px;height:36px;border-radius:var(--radius3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg4)}
+.ti-info{flex:1;min-width:0}
+.ti-name{font-weight:600;font-size:13px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ti-meta{font-size:11px;color:var(--text2)}
+.ti-rew{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--gold);flex-shrink:0}
+.ti.done .ti-rew{display:none}
+
+/* ─── MODAL ─── */
+.m-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:.3s}
+.m-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:430px;padding:20px 20px 40px;transform:translateY(100%);transition:.38s cubic-bezier(.3,0,.2,1);max-height:92dvh;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.m-overlay.open .modal{transform:translateY(0)}
+.m-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.m-loc{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.m-title{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;margin-bottom:5px;color:var(--text)}
+.m-desc{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.65}
+.m-rew-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.m-rew-badge{background:rgba(180,83,9,.12);border:1px solid rgba(180,83,9,.25);border-radius:9px;padding:6px 13px;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--gold)}
+.light .m-rew-badge{background:rgba(180,83,9,.1)}
+.m-rew-lbl{font-size:12px;color:var(--text2)}
+.opts-hd{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.opt{padding:11px 9px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius2);cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:.15s;color:var(--text)}
+.opt:hover,.opt.sel{border-color:var(--accent);background:var(--glow2);color:var(--accent3)}
+.opt-ico{font-size:19px;display:block;margin-bottom:4px}
+.ci{width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--radius2);padding:11px 13px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;resize:none;margin-bottom:12px;transition:.2s;grid-column:1/-1}
+.ci:focus{outline:none;border-color:var(--accent)}
+.ci::placeholder{color:var(--text3)}
+.cta{width:100%;padding:15px;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;border:none;cursor:pointer;transition:.2s;box-shadow:0 4px 18px var(--glow)}
+.cta:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--glow)}
+.cta:active{transform:scale(.98)}
+.cta:disabled{background:var(--bg4);box-shadow:none;cursor:default;color:var(--text3)}
+.cta.done{background:linear-gradient(135deg,var(--green2),var(--green));box-shadow:0 4px 18px rgba(34,211,160,.28)}
+.cta.sec{background:var(--bg3);box-shadow:none;color:var(--text);border:1px solid var(--border2)}
+.cta.sec:hover{background:var(--bg4);transform:none;box-shadow:none}
+
+/* ─── ACTIVITY ─── */
+.act-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:8px;box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr)}
+.act-ico{width:36px;height:36px;border-radius:var(--radius3);background:rgba(34,211,160,.1);border:1px solid rgba(34,211,160,.18);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.act-info{flex:1}
+.act-name{font-weight:600;font-size:13px;margin-bottom:2px}
+.act-time{font-size:11px;color:var(--text2)}
+.amt{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+.empty{text-align:center;padding:50px 20px;color:var(--text2)}
+.empty-ico{font-size:42px;margin-bottom:10px;opacity:.4}
+
+/* ─── WALLET ─── */
+.w-hero{border-radius:var(--radius);padding:24px 20px;margin-bottom:20px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--accent2) 0%,var(--accent) 55%,#db2777 100%)}
+.w-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.07)}
+.w-hero::after{content:'';position:absolute;bottom:-35px;left:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.05)}
+.w-lbl{font-size:11px;color:rgba(255,255,255,.68);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;position:relative;z-index:1}
+.w-bal{font-family:'Syne',sans-serif;font-weight:800;font-size:38px;color:#fff;margin-bottom:2px;position:relative;z-index:1;letter-spacing:-1px}
+.w-sub{font-size:12px;color:rgba(255,255,255,.58);position:relative;z-index:1}
+.w-chips{display:flex;gap:7px;margin-top:14px;position:relative;z-index:1}
+.w-chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:.15s}
+.w-chip:hover{background:rgba(255,255,255,.24)}
+.sec-hd{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px}
+.tx-list{display:flex;flex-direction:column;gap:6px}
+.tx{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr)}
+.tx-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.tx-ico.earn{background:rgba(34,211,160,.1)}
+.tx-ico.spend{background:rgba(248,113,113,.1)}
+.tx-info{flex:1}
+.tx-n{font-size:13px;font-weight:500;margin-bottom:1px;color:var(--text)}
+.tx-d{font-size:10px;color:var(--text3)}
+
+/* ─── BUSINESS ─── */
+.role-tabs{display:flex;background:var(--bg3);border-radius:var(--radius2);padding:3px;margin-bottom:18px;border:1px solid var(--border)}
+.r-tab{flex:1;padding:8px;border-radius:var(--radius3);font-weight:600;font-size:13px;border:none;cursor:pointer;transition:.2s;background:transparent;color:var(--text2)}
+.r-tab.on{background:var(--accent);color:#fff;box-shadow:0 2px 10px var(--glow)}
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.stat-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:14px;box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr)}
+.s-lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:5px}
+.s-val{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--text)}
+.s-val.v-p{color:var(--accent3)}
+.s-val.v-g{color:var(--green)}
+.s-val.v-o{color:var(--gold)}
+.camp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:9px;box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr)}
+.cc-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:11px}
+.cc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text)}
+.cc-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.c-badge{font-size:10px;padding:3px 8px;border-radius:7px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+.c-on{background:rgba(5,150,105,.1);color:var(--green);border:1px solid rgba(5,150,105,.22)}
+.c-off{background:rgba(248,113,113,.08);color:var(--red);border:1px solid rgba(248,113,113,.18)}
+.c-end{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.dark .c-on{background:rgba(34,211,160,.1)}
+.cc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cs-val{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:2px;color:var(--text)}
+.cs-lbl{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.prog-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:10px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent3));border-radius:2px;transition:.6s}
+.prog-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text3)}
+.new-camp-btn{width:100%;padding:12px;border-radius:var(--radius2);background:var(--glow2);border:1.5px dashed var(--accent);color:var(--accent3);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:.2s;margin-top:2px}
+.new-camp-btn:hover{background:var(--glow)}
+
+/* ─── MULTI-STEP MODAL ─── */
+.step-bar{display:flex;align-items:center;margin-bottom:20px}
+.sdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0;transition:.3s;border:2px solid var(--border2)}
+.sdot.s-done{background:var(--green);border-color:var(--green);color:#fff}
+.sdot.s-now{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 3px var(--glow2)}
+.sdot.s-todo{background:var(--bg3);color:var(--text3)}
+.sline{flex:1;height:2px;background:var(--border);transition:.3s}
+.sline.done{background:var(--green)}
+.sp{display:none}
+.sp.on{display:block}
+.sp-title{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:3px;color:var(--text)}
+.sp-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.f-lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.f-inp{width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--radius2);padding:11px 13px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;transition:.2s}
+.f-inp:focus{outline:none;border-color:var(--accent);background:var(--glow2)}
+.f-inp::placeholder{color:var(--text3)}
+.f-inp option{background:var(--bg2);color:var(--text)}
+.f-row{margin-bottom:12px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.tc{padding:13px 9px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius2);cursor:pointer;text-align:center;font-size:11px;font-weight:600;transition:.2s;color:var(--text2)}
+.tc:hover,.tc.sel{border-color:var(--accent);background:var(--glow2);color:var(--accent3)}
+.tc-ico{font-size:21px;display:block;margin-bottom:5px}
+.step-nav{display:flex;gap:8px;margin-top:16px}
+.conf-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.conf-row:last-child{border-bottom:none}
+.conf-lbl{font-size:12px;color:var(--text2)}
+.conf-val{font-size:13px;font-weight:700;color:var(--text);font-family:'Syne',sans-serif}
+
+/* ─── PROFILE ─── */
+.prof-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;margin-bottom:14px;text-align:center;box-shadow:var(--card-shadow)}
+.p-av{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#fff;margin:0 auto 10px;transition:background .3s}
+.p-name{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:3px;color:var(--text)}
+.p-addr{font-size:11px;color:var(--text2);margin-bottom:12px;font-family:monospace}
+.p-stats{display:flex;border-top:1px solid var(--border);padding-top:12px}
+.p-stat{flex:1;text-align:center}
+.p-stat:not(:last-child){border-right:1px solid var(--border)}
+.p-sv{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--accent3)}
+.p-sl{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.sg-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;padding:0 3px;margin-bottom:5px}
+.sg{margin-bottom:12px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:3px;cursor:pointer;box-shadow:var(--card-shadow);transition:background var(--tr),border-color var(--tr)}
+.s-row:hover{border-color:var(--border2)}
+.s-left{display:flex;align-items:center;gap:9px}
+.s-ico{font-size:16px;width:24px;text-align:center}
+.s-lbl{font-size:13px;font-weight:500;color:var(--text)}
+.tog{width:42px;height:23px;border-radius:12px;background:var(--bg4);border:1px solid var(--border2);cursor:pointer;position:relative;transition:.25s;flex-shrink:0}
+.tog::after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog.on{background:var(--accent);border-color:var(--accent)}
+.tog.on::after{left:21px}
+.chev{color:var(--text3);font-size:15px}
+
+/* ─── BOTTOM NAV ─── */
+.bot-nav{flex-shrink:0;display:flex;background:var(--bg);border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));transition:background var(--tr),border-color var(--tr)}
+.light .bot-nav{box-shadow:0 -1px 0 rgba(15,23,42,0.06)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 0;transition:.15s}
+.nb-ico{font-size:20px;color:var(--text3);transition:.2s;line-height:1}
+.nb-lbl{font-size:9px;color:var(--text3);font-weight:600;transition:.2s}
+.nb.on .nb-ico,.nb.on .nb-lbl{color:var(--accent)}
+.nb:active{transform:scale(.88)}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes balPop{0%,100%{transform:scale(1)}45%{transform:scale(1.22)}}
+.bal-anim{animation:balPop .42s ease}
+.si>*{animation:fadeUp .36s ease both}
+.si>*:nth-child(1){animation-delay:.04s}.si>*:nth-child(2){animation-delay:.08s}
+.si>*:nth-child(3){animation-delay:.13s}.si>*:nth-child(4){animation-delay:.18s}
+.si>*:nth-child(5){animation-delay:.23s}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--green);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;border-radius:18px;z-index:999;opacity:0;transition:.3s;white-space:nowrap;box-shadow:0 4px 18px rgba(34,211,160,.3);pointer-events:none}
+.toast.err{background:var(--red);box-shadow:0 4px 18px rgba(248,113,113,.28)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* light-mode extras */
+.light .map-card{box-shadow:0 2px 10px rgba(15,23,42,.07)}
+.light .pin{box-shadow:0 4px 12px rgba(15,23,42,.18)}
+.light .modal{box-shadow:0 -4px 40px rgba(15,23,42,.1)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════ ONBOARDING ══════════ -->
+<div id="onboarding" class="hidden">
+  <div class="ob-slides">
+    <div class="ob-slide" id="obs0">
+      <div class="ob-art">
+        <div class="ob-blob" style="width:155px;height:155px;background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(168,85,247,.08));inset:0"></div>
+        <div class="ob-emoji">📍</div>
+        <span class="ob-float1">💎</span><span class="ob-float2">⚡</span>
+      </div>
+      <h1 class="ob-title">Earn from Real-World Actions</h1>
+      <p class="ob-sub">Visit places. Complete tasks. Get rewarded with crypto tokens on every interaction.</p>
+    </div>
+    <div class="ob-slide" id="obs1">
+      <div class="ob-art">
+        <div class="ob-blob" style="width:155px;height:155px;background:linear-gradient(135deg,rgba(251,191,36,.16),rgba(251,191,36,.05));inset:0"></div>
+        <div class="ob-emoji">🏪</div>
+        <span class="ob-float1">👥</span><span class="ob-float2">🎯</span>
+      </div>
+      <h1 class="ob-title">Businesses Pay for Real Visits</h1>
+      <p class="ob-sub">No ads. No bots. Only authentic customers completing real-world tasks for rewards.</p>
+    </div>
+    <div class="ob-slide" id="obs2">
+      <div class="ob-art">
+        <div class="ob-blob" style="width:155px;height:155px;background:linear-gradient(135deg,rgba(14,165,233,.16),rgba(99,102,241,.08));inset:0"></div>
+        <div class="ob-emoji">◎</div>
+        <span class="ob-float1">⚡</span><span class="ob-float2">🌐</span>
+      </div>
+      <h1 class="ob-title">Powered by Solana</h1>
+      <p class="ob-sub">Fast. Transparent. Scalable. Earn real on-chain tokens with sub-second settlement.</p>
+    </div>
+    <div class="ob-slide" id="obs3" style="justify-content:flex-start;padding-top:28px">
+      <div style="text-align:center;margin-bottom:22px;width:100%">
+        <div style="font-size:36px;margin-bottom:10px">👋</div>
+        <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:5px;color:var(--text)">How will you use GeoEarn?</h2>
+        <p style="font-size:13px;color:var(--text2)">You can switch anytime in settings</p>
+      </div>
+      <div class="ob-role-wrap">
+        <div class="ob-role-card" id="orc-user" onclick="pickRole('user')">
+          <div class="ob-role-icon" style="background:rgba(168,85,247,.12)">👤</div>
+          <div><div class="ob-role-name">Continue as User</div><div class="ob-role-desc">Earn GEO tokens by visiting locations and completing real-world tasks for businesses.</div></div>
+        </div>
+        <div class="ob-role-card" id="orc-biz" onclick="pickRole('business')">
+          <div class="ob-role-icon" style="background:rgba(180,83,9,.1)">🏢</div>
+          <div><div class="ob-role-name">Continue as Business</div><div class="ob-role-desc">Create campaigns to attract real customers with crypto-powered incentives.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ob-footer">
+    <div class="ob-dots">
+      <div class="ob-dot on" id="od0"></div>
+      <div class="ob-dot" id="od1"></div>
+      <div class="ob-dot" id="od2"></div>
+      <div class="ob-dot" id="od3"></div>
+    </div>
+    <button class="ob-btn" id="ob-main-btn" onclick="obAdvance()">Get Started →</button>
+    <button class="ob-btn" id="ob-enter-btn" onclick="finishOB()" style="display:none">Enter GeoEarn →</button>
+  </div>
+</div>
+
+<!-- ══════════ TOPBAR ══════════ -->
+<div class="topbar" id="topbar" style="display:none">
+  <span class="logo">GeoEarn</span>
+  <div class="topbar-r">
+    <span class="mode-badge" id="mode-badge">USER</span>
+    <span class="bal-pill" id="top-bal">120 GEO</span>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+  </div>
+</div>
+
+<!-- ══════════ MAP ══════════ -->
+<div class="screen" id="screen-map">
+  <div class="map-wrap">
+    <div class="map-grid-bg"></div>
+    <div class="road-h" style="top:32%"></div><div class="road-h" style="top:59%"></div><div class="road-h" style="top:77%"></div>
+    <div class="road-v" style="left:27%"></div><div class="road-v" style="left:64%"></div>
+    <div class="map-lbl" style="top:30%;left:7%">Main St</div>
+    <div class="map-lbl" style="top:57%;left:4%">Park Ave</div>
+    <div class="map-lbl" style="top:14%;left:60%">Oak Rd</div>
+    <div class="mkr" style="left:27%;top:38%" id="m0" onclick="openTask(0)"><div class="m-rew">+10 GEO</div><div class="pin" style="background:linear-gradient(135deg,#f97316,#fbbf24)"></div></div>
+    <div class="mkr" style="left:67%;top:24%" id="m1" onclick="openTask(1)"><div class="m-rew">+15 GEO</div><div class="pin" style="background:linear-gradient(135deg,#06b6d4,#818cf8)"></div></div>
+    <div class="mkr" style="left:19%;top:62%" id="m2" onclick="openTask(2)"><div class="m-rew">+8 GEO</div><div class="pin" style="background:linear-gradient(135deg,#22c55e,#10b981)"></div></div>
+    <div class="mkr" style="left:71%;top:67%" id="m3" onclick="openTask(3)"><div class="m-rew">+20 GEO</div><div class="pin" style="background:linear-gradient(135deg,#ec4899,#a855f7)"></div></div>
+    <div class="u-pulse" style="left:50%;top:50%"></div>
+    <div class="u-dot"></div>
+  </div>
+  <div class="map-bottom">
+    <div class="map-card">
+      <div class="nearby-hd">📍 Nearby Tasks</div>
+      <div class="task-list" id="task-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ACTIVITY ══════════ -->
+<div class="screen" id="screen-activity">
+  <div class="si"><div class="stitle">Activity</div><div id="act-list"></div></div>
+</div>
+
+<!-- ══════════ WALLET ══════════ -->
+<div class="screen" id="screen-wallet">
+  <div class="si">
+    <div class="stitle">Wallet</div>
+    <div class="w-hero">
+      <div class="w-lbl">Total Balance</div>
+      <div class="w-bal" id="w-bal">120 GEO</div>
+      <div class="w-sub" id="w-sub">≈ $24.00 USD · Solana Devnet</div>
+      <div class="w-chips"><div class="w-chip">Send</div><div class="w-chip">Receive</div><div class="w-chip">Swap</div></div>
+    </div>
+    <div class="sec-hd">Transactions</div>
+    <div class="tx-list" id="tx-list"></div>
+  </div>
+</div>
+
+<!-- ══════════ BUSINESS ══════════ -->
+<div class="screen" id="screen-business">
+  <div class="si">
+    <div class="role-tabs">
+      <button class="r-tab on" id="rt-user" onclick="setRole('user')">👤 User</button>
+      <button class="r-tab" id="rt-biz" onclick="setRole('business')">🏢 Business</button>
+    </div>
+    <div id="biz-body"></div>
+  </div>
+</div>
+
+<!-- ══════════ PROFILE ══════════ -->
+<div class="screen" id="screen-profile">
+  <div class="si">
+    <div class="stitle">Profile</div>
+    <div class="prof-card">
+      <div class="p-av" id="p-av">JD</div>
+      <div class="p-name">Jake Doe</div>
+      <div class="p-addr">0x4f2a…9e1c · Solana Devnet</div>
+      <div class="p-stats">
+        <div class="p-stat"><div class="p-sv" id="ps-earned">120</div><div class="p-sl">GEO Earned</div></div>
+        <div class="p-stat"><div class="p-sv" id="ps-tasks">0</div><div class="p-sl">Tasks Done</div></div>
+        <div class="p-stat"><div class="p-sv" id="ps-camps">0</div><div class="p-sl">Campaigns</div></div>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-lbl">Appearance</div>
+      <div class="s-row" onclick="toggleTheme()">
+        <div class="s-left"><span class="s-ico">🌙</span><span class="s-lbl">Dark Mode</span></div>
+        <button class="tog" id="dark-tog" onclick="event.stopPropagation();toggleTheme()"></button>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-lbl">Account</div>
+      <div class="s-row" onclick="switchRoleFromProfile()">
+        <div class="s-left"><span class="s-ico">🔄</span><span class="s-lbl" id="role-switch-lbl">Switch to Business</span></div>
+        <span class="chev">›</span>
+      </div>
+      <div class="s-row">
+        <div class="s-left"><span class="s-ico">🔔</span><span class="s-lbl">Notifications</span></div>
+        <button class="tog on" onclick="event.stopPropagation();this.classList.toggle('on')"></button>
+      </div>
+      <div class="s-row">
+        <div class="s-left"><span class="s-ico">📍</span><span class="s-lbl">Location Services</span></div>
+        <button class="tog on" onclick="event.stopPropagation();this.classList.toggle('on')"></button>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-lbl">More</div>
+      <div class="s-row"><div class="s-left"><span class="s-ico">📤</span><span class="s-lbl">Share App</span></div><span class="chev">›</span></div>
+      <div class="s-row" onclick="replayOB()"><div class="s-left"><span class="s-ico">↺</span><span class="s-lbl">Replay Onboarding</span></div><span class="chev">›</span></div>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text3)">GeoEarn v2.0 · Built on Solana ◎</div>
+  </div>
+</div>
+
+<!-- ══════════ BOTTOM NAV ══════════ -->
+<nav class="bot-nav" id="bot-nav" style="display:none">
+  <button class="nb on" id="nav-map" onclick="goTo('map')"><span class="nb-ico">🗺️</span><span class="nb-lbl">Map</span></button>
+  <button class="nb" id="nav-activity" onclick="goTo('activity')"><span class="nb-ico">⚡</span><span class="nb-lbl">Activity</span></button>
+  <button class="nb" id="nav-wallet" onclick="goTo('wallet')"><span class="nb-ico">💰</span><span class="nb-lbl">Wallet</span></button>
+  <button class="nb" id="nav-business" onclick="goTo('business')"><span class="nb-ico">🏢</span><span class="nb-lbl">Business</span></button>
+  <button class="nb" id="nav-profile" onclick="goTo('profile')"><span class="nb-ico">👤</span><span class="nb-lbl">Profile</span></button>
+</nav>
+</div>
+
+<!-- TASK MODAL -->
+<div class="m-overlay" id="task-modal" onclick="if(event.target===this)closeTaskModal()">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-loc" id="m-loc"></div>
+    <div class="m-title" id="m-title"></div>
+    <div class="m-desc" id="m-desc"></div>
+    <div class="m-rew-row"><div class="m-rew-badge" id="m-rew"></div><div class="m-rew-lbl">reward for completing</div></div>
+    <div class="opts-hd">Choose your action</div>
+    <div class="opts-grid" id="opts-grid">
+      <div class="opt" onclick="pickOpt(this,'buy')"><span class="opt-ico">🛍️</span>Visit & Buy</div>
+      <div class="opt" onclick="pickOpt(this,'photo')"><span class="opt-ico">📸</span>Take a Photo</div>
+      <div class="opt" onclick="pickOpt(this,'review')"><span class="opt-ico">⭐</span>Leave a Review</div>
+      <div class="opt" onclick="pickOpt(this,'custom')"><span class="opt-ico">✏️</span>Custom Task</div>
+      <textarea class="ci" id="custom-inp" placeholder="Describe your custom task…" rows="2" style="display:none"></textarea>
+    </div>
+    <button class="cta" id="done-btn" onclick="completeTask()">I've Completed It ✓</button>
+  </div>
+</div>
+
+<!-- CAMPAIGN MODAL -->
+<div class="m-overlay" id="camp-modal" onclick="if(event.target===this)closeCampModal()">
+  <div class="modal" style="padding-bottom:44px">
+    <div class="m-handle"></div>
+    <div class="step-bar">
+      <div class="sdot s-now" id="sd1">1</div><div class="sline" id="sl1"></div>
+      <div class="sdot s-todo" id="sd2">2</div><div class="sline" id="sl2"></div>
+      <div class="sdot s-todo" id="sd3">3</div><div class="sline" id="sl3"></div>
+      <div class="sdot s-todo" id="sd4">4</div>
+    </div>
+    <!-- Step 1 -->
+    <div class="sp on" id="sp1">
+      <div class="sp-title">Choose Location</div>
+      <div class="sp-sub">Where should customers visit?</div>
+      <div class="f-row"><label class="f-lbl">Business / Location Name</label><input class="f-inp" id="cn" type="text" placeholder="e.g. The Golden Spoon Cafe"></div>
+      <div class="f-row"><label class="f-lbl">Address (optional)</label><input class="f-inp" id="ca" type="text" placeholder="123 Main St, City"></div>
+      <div class="step-nav">
+        <button class="cta sec" onclick="closeCampModal()">Cancel</button>
+        <button class="cta" onclick="stepTo(2)">Next →</button>
+      </div>
+    </div>
+    <!-- Step 2 -->
+    <div class="sp" id="sp2">
+      <div class="sp-title">Select Task Type</div>
+      <div class="sp-sub">What should customers do at your location?</div>
+      <div class="type-grid">
+        <div class="tc" id="tc-buy" onclick="pickType('buy')"><span class="tc-ico">🛍️</span>Visit & Buy</div>
+        <div class="tc" id="tc-photo" onclick="pickType('photo')"><span class="tc-ico">📸</span>Take a Photo</div>
+        <div class="tc" id="tc-review" onclick="pickType('review')"><span class="tc-ico">⭐</span>Leave a Review</div>
+        <div class="tc" id="tc-custom" onclick="pickType('custom')"><span class="tc-ico">✏️</span>Custom Task</div>
+      </div>
+      <input class="f-inp" id="c-ctask" placeholder="Describe the custom task…" style="display:none;margin-bottom:8px">
+      <div class="step-nav">
+        <button class="cta sec" onclick="stepTo(1)">← Back</button>
+        <button class="cta" onclick="stepTo(3)">Next →</button>
+      </div>
+    </div>
+    <!-- Step 3 -->
+    <div class="sp" id="sp3">
+      <div class="sp-title">Set Reward & Budget</div>
+      <div class="sp-sub">Define how much you pay per visit and total spend.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="f-row"><label class="f-lbl">Reward / Visit</label><input class="f-inp" id="cr" type="number" placeholder="10" min="1"></div>
+        <div class="f-row"><label class="f-lbl">Total Budget</label><input class="f-inp" id="cb" type="number" placeholder="200" min="10"></div>
+      </div>
+      <div class="f-row"><label class="f-lbl">Duration</label>
+        <select class="f-inp" id="cd">
+          <option value="">No limit</option>
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="60">60 days</option>
+        </select>
+      </div>
+      <div class="step-nav">
+        <button class="cta sec" onclick="stepTo(2)">← Back</button>
+        <button class="cta" onclick="stepTo(4)">Review →</button>
+      </div>
+    </div>
+    <!-- Step 4 -->
+    <div class="sp" id="sp4">
+      <div class="sp-title">Confirm Campaign</div>
+      <div class="sp-sub">Review before launching.</div>
+      <div style="background:var(--bg3);border-radius:var(--radius2);padding:12px 14px;margin-bottom:16px;border:1px solid var(--border)">
+        <div class="conf-row"><span class="conf-lbl">Location</span><span class="conf-val" id="cf-n">—</span></div>
+        <div class="conf-row"><span class="conf-lbl">Task Type</span><span class="conf-val" id="cf-t">—</span></div>
+        <div class="conf-row"><span class="conf-lbl">Reward / Visit</span><span class="conf-val" id="cf-r" style="color:var(--gold)">—</span></div>
+        <div class="conf-row"><span class="conf-lbl">Total Budget</span><span class="conf-val" id="cf-b">—</span></div>
+        <div class="conf-row"><span class="conf-lbl">Est. Visits</span><span class="conf-val" id="cf-v" style="color:var(--green)">—</span></div>
+        <div class="conf-row"><span class="conf-lbl">Duration</span><span class="conf-val" id="cf-d">—</span></div>
+      </div>
+      <div class="step-nav">
+        <button class="cta sec" onclick="stepTo(3)">← Back</button>
+        <button class="cta" onclick="launchCampaign()">🚀 Launch Campaign</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const LOCS=[
+  {name:'Sunrise Cafe',reward:10,icon:'☕',desc:'Grab a morning brew and earn GEO tokens. Show your loyalty to local businesses!',cat:'Food & Drink',dist:'0.2 km'},
+  {name:'City Mall',reward:15,icon:'🏬',desc:"The city's premier shopping destination. Complete a task to unlock rewards across 200+ stores.",cat:'Shopping',dist:'0.5 km'},
+  {name:'Fresh Market',reward:8,icon:'🥦',desc:'Support local farmers and earn while you shop. Organic produce from regional farms.',cat:'Grocery',dist:'0.3 km'},
+  {name:'Galaxy Cinema',reward:20,icon:'🎬',desc:'Catch the latest blockbusters and earn GEO. Biggest screens in the city.',cat:'Entertainment',dist:'0.8 km'},
+];
+const TL={buy:'Visit & Buy',photo:'Take Photo',review:'Leave Review',custom:'Custom Task'};
+
+let S={
+  bal:120,done:[],
+  camps:[
+    {name:'Rooftop Bistro',addr:'56 Rooftop Ave',reward:12,budget:300,rem:228,visits:6,type:'buy',active:true},
+    {name:'FitZone Gym',addr:'12 Health Blvd',reward:8,budget:150,rem:94,visits:7,type:'review',active:true},
+  ],
+  txs:[
+    {k:'earn',n:'Sunrise Cafe · Visit & Buy',a:10,t:'Today, 9:14 AM'},
+    {k:'earn',n:'Galaxy Cinema · Review',a:20,t:'Yesterday, 7:32 PM'},
+    {k:'spend',n:'Campaign: Rooftop Bistro',a:300,t:'2 days ago'},
+    {k:'earn',n:'Fresh Market · Photo',a:8,t:'3 days ago'},
+  ],
+  theme:'dark',role:'user',seen:false,
+  aTask:null,aOpt:null,
+};
+
+function load(){try{const d=localStorage.getItem('ge2');if(d)Object.assign(S,JSON.parse(d));}catch(e){}}
+function save(){try{localStorage.setItem('ge2',JSON.stringify(S));}catch(e){}}
+
+// ── THEME ──
+function applyTheme(){
+  document.getElementById('app').className=S.theme==='light'?'light':'';
+  document.getElementById('onboarding').className=S.seen?'hidden':(S.theme==='light'?'light':'');
+  document.getElementById('theme-btn').textContent=S.theme==='dark'?'☀️':'🌙';
+  const dt=document.getElementById('dark-tog');
+  if(dt)dt.className='tog'+(S.theme==='dark'?' on':'');
+}
+function toggleTheme(){S.theme=S.theme==='dark'?'light':'dark';applyTheme();save();}
+
+// ── ONBOARDING ──
+let obIdx=0,obRole=null;
+const OB_SLIDES=['obs0','obs1','obs2','obs3'];
+
+function showOBSlide(i){
+  OB_SLIDES.forEach((id,j)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('active','exit');
+    if(j===i)el.classList.add('active');
+    else if(j<i)el.classList.add('exit');
+  });
+  [0,1,2,3].forEach(j=>{document.getElementById('od'+j).classList.toggle('on',j===i);});
+  const mb=document.getElementById('ob-main-btn');
+  const eb=document.getElementById('ob-enter-btn');
+  if(i<3){mb.style.display='';mb.textContent='Continue →';eb.style.display='none';}
+  else{mb.style.display='none';eb.style.display='none';}// role step handles its own
+}
+
+function obAdvance(){if(obIdx<3){obIdx++;showOBSlide(obIdx);}}
+
+function pickRole(r){
+  obRole=r;
+  document.getElementById('orc-user').classList.toggle('sel',r==='user');
+  document.getElementById('orc-biz').classList.toggle('sel',r==='business');
+  const eb=document.getElementById('ob-enter-btn');
+  eb.style.display='';
+}
+
+function finishOB(){
+  S.role=obRole||'user';S.seen=true;save();
+  document.getElementById('onboarding').classList.add('hidden');
+  launchApp();
+}
+
+function replayOB(){
+  S.seen=false;obIdx=0;obRole=null;save();
+  document.getElementById('topbar').style.display='none';
+  document.getElementById('bot-nav').style.display='none';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const ob=document.getElementById('onboarding');ob.className=S.theme==='light'?'light':'';
+  showOBSlide(0);
+  document.getElementById('ob-main-btn').style.display='';
+  document.getElementById('ob-enter-btn').style.display='none';
+  document.getElementById('orc-user').classList.remove('sel');
+  document.getElementById('orc-biz').classList.remove('sel');
+}
+
+function launchApp(){
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('bot-nav').style.display='flex';
+  goTo('map');
+  updateBals();renderTaskList();updateBadge();renderProfile();applyTheme();
+}
+
+// ── NAVIGATION ──
+function goTo(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('screen-'+name).classList.add('active');
+  const nb=document.getElementById('nav-'+name);if(nb)nb.classList.add('on');
+  if(name==='activity')renderActivity();
+  if(name==='wallet')renderWallet();
+  if(name==='business')renderBiz();
+  if(name==='profile')renderProfile();
+}
+
+// ── BALANCE ──
+function updateBals(){
+  const b=S.bal+' GEO';
+  document.getElementById('top-bal').textContent=b;
+  const wb=document.getElementById('w-bal');if(wb)wb.textContent=b;
+  const ws=document.getElementById('w-sub');if(ws)ws.textContent='≈ $'+(S.bal*.2).toFixed(2)+' USD · Solana Devnet';
+}
+function updateBadge(){
+  const mb=document.getElementById('mode-badge');
+  mb.textContent=S.role==='business'?'BIZ':'USER';
+  mb.className='mode-badge'+(S.role==='business'?' biz':'');
+}
+
+// ── TASK LIST ──
+function renderTaskList(){
+  document.getElementById('task-list').innerHTML=LOCS.map((l,i)=>{
+    const d=S.done.includes(i);
+    return`<div class="ti${d?' done':''}" onclick="${d?'':'openTask('+i+')'}" id="ti${i}">
+      <div class="ti-ico">${l.icon}</div>
+      <div class="ti-info"><div class="ti-name">${l.name}</div><div class="ti-meta">${l.dist} · ${l.cat}</div></div>
+      ${d?'':'<div class="ti-rew">+'+l.reward+'</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── TASK MODAL ──
+function openTask(i){
+  const l=LOCS[i];
+  if(S.done.includes(i)){toast('Already visited ✓');return;}
+  S.aTask=i;S.aOpt=null;
+  document.getElementById('m-loc').textContent='📍 '+l.cat;
+  document.getElementById('m-title').textContent=l.name;
+  document.getElementById('m-desc').textContent=l.desc;
+  document.getElementById('m-rew').textContent='+'+l.reward+' GEO';
+  document.getElementById('custom-inp').style.display='none';
+  document.querySelectorAll('#opts-grid .opt').forEach(o=>o.classList.remove('sel'));
+  const btn=document.getElementById('done-btn');btn.className='cta';btn.disabled=false;btn.textContent="I've Completed It ✓";
+  document.getElementById('task-modal').classList.add('open');
+}
+function pickOpt(el,t){
+  document.querySelectorAll('#opts-grid .opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');S.aOpt=t;
+  document.getElementById('custom-inp').style.display=t==='custom'?'block':'none';
+}
+function completeTask(){
+  const i=S.aTask;if(i===null)return;
+  const l=LOCS[i];
+  S.bal+=l.reward;S.done.push(i);
+  const now=new Date(),ts='Today, '+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  S.txs.unshift({k:'earn',n:l.name+' · '+(S.aOpt?TL[S.aOpt]||'Completed':'Visited'),a:l.reward,t:ts});
+  S.camps.forEach(c=>{if(c.name===l.name){c.visits++;c.rem=Math.max(0,c.rem-c.reward);}});
+  save();updateBals();renderTaskList();
+  document.getElementById('m'+i).classList.add('visited');
+  const btn=document.getElementById('done-btn');btn.className='cta done';btn.textContent='✓ +'+l.reward+' GEO Earned!';btn.disabled=true;
+  const bp=document.getElementById('top-bal');bp.classList.remove('bal-anim');void bp.offsetWidth;bp.classList.add('bal-anim');
+  setTimeout(()=>{closeTaskModal();toast('+'+l.reward+' GEO earned at '+l.name+'! 🎉');},900);
+}
+function closeTaskModal(){document.getElementById('task-modal').classList.remove('open');}
+
+// ── ACTIVITY ──
+function renderActivity(){
+  const acts=S.txs.filter(t=>t.k==='earn');
+  document.getElementById('act-list').innerHTML=acts.length
+    ?acts.map(t=>`<div class="act-item"><div class="act-ico">✅</div><div class="act-info"><div class="act-name">${t.n}</div><div class="act-time">${t.t}</div></div><div class="amt pos">+${t.a} GEO</div></div>`).join('')
+    :`<div class="empty"><div class="empty-ico">⚡</div><div style="font-weight:600;margin-bottom:4px">No activity yet</div><div style="font-size:12px">Complete tasks to earn GEO tokens</div></div>`;
+}
+
+// ── WALLET ──
+function renderWallet(){
+  updateBals();
+  document.getElementById('tx-list').innerHTML=S.txs.map(t=>`<div class="tx"><div class="tx-ico ${t.k}">${t.k==='earn'?'⬆️':'⬇️'}</div><div class="tx-info"><div class="tx-n">${t.n}</div><div class="tx-d">${t.t}</div></div><div class="amt ${t.k==='earn'?'pos':'neg'}">${t.k==='earn'?'+':'-'}${t.a} GEO</div></div>`).join('');
+}
+
+// ── ROLE ──
+function setRole(r){
+  S.role=r;save();
+  document.getElementById('rt-user').className='r-tab'+(r==='user'?' on':'');
+  document.getElementById('rt-biz').className='r-tab'+(r==='business'?' on':'');
+  updateBadge();renderBiz();renderProfile();
+}
+function switchRoleFromProfile(){
+  setRole(S.role==='user'?'business':'user');
+  goTo('business');
+  toast('Switched to '+(S.role==='business'?'Business':'User')+' mode');
+}
+
+// ── BUSINESS ──
+function renderBiz(){
+  document.getElementById('rt-user').className='r-tab'+(S.role==='user'?' on':'');
+  document.getElementById('rt-biz').className='r-tab'+(S.role==='business'?' on':'');
+  updateBadge();
+  const c=document.getElementById('biz-body');
+  if(S.role==='user'){
+    c.innerHTML=`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 18px;text-align:center;box-shadow:var(--card-shadow)">
+      <div style="font-size:44px;margin-bottom:14px">🏢</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:7px;color:var(--text)">Grow Your Business</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px">Create location-based campaigns and drive authentic foot traffic with real crypto incentives.</div>
+      <button class="cta" onclick="setRole('business')">Switch to Business Mode →</button>
+    </div>
+    <div style="margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--card-shadow)">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;color:var(--text)">Why GeoEarn for Business?</div>
+      ${[['📍','Real Foot Traffic','Pay only when customers actually visit'],['🔒','No Fake Visits','Blockchain-verified real-world actions'],['📊','Live Analytics','Track ROI with real-time campaign data']].map(([ic,t,d])=>`<div style="display:flex;gap:10px;margin-bottom:10px"><div style="font-size:18px">${ic}</div><div><div style="font-weight:600;font-size:13px;color:var(--text)">${t}</div><div style="font-size:11px;color:var(--text2)">${d}</div></div></div>`).join('')}
+    </div>`;
+    return;
+  }
+  const totRem=S.camps.reduce((a,c)=>a+c.rem,0);
+  const totV=S.camps.reduce((a,c)=>a+c.visits,0);
+  const totSpend=S.camps.reduce((a,c)=>a+(c.budget-c.rem),0);
+  c.innerHTML=`
+    <div class="biz-grid">
+      <div class="stat-c"><div class="s-lbl">Budget Left</div><div class="s-val v-p">${totRem} <span style="font-size:13px;font-weight:500">GEO</span></div></div>
+      <div class="stat-c"><div class="s-lbl">Total Visits</div><div class="s-val v-g">${totV}</div></div>
+      <div class="stat-c"><div class="s-lbl">Total Spend</div><div class="s-val v-o">${totSpend} <span style="font-size:13px;font-weight:500">GEO</span></div></div>
+      <div class="stat-c"><div class="s-lbl">Campaigns</div><div class="s-val">${S.camps.length}</div></div>
+    </div>
+    <div class="sec-hd">Campaigns</div>
+    ${S.camps.length?S.camps.map(camp=>{
+      const pct=Math.min(100,Math.round((1-camp.rem/camp.budget)*100));
+      const isDone=camp.rem<=0;
+      return`<div class="camp-card">
+        <div class="cc-head">
+          <div>
+            <div class="cc-name">${camp.name}</div>
+            <div class="cc-sub">📋 ${TL[camp.type]||camp.type}${camp.addr?' · 📍 '+camp.addr:''}</div>
+          </div>
+          <div class="c-badge ${isDone?'c-end':camp.active?'c-on':'c-off'}">${isDone?'Done':camp.active?'● Active':'Paused'}</div>
+        </div>
+        <div class="cc-stats">
+          <div><div class="cs-val">${camp.visits}</div><div class="cs-lbl">Visits</div></div>
+          <div><div class="cs-val">${camp.reward} GEO</div><div class="cs-lbl">Per Visit</div></div>
+          <div><div class="cs-val">${camp.rem}</div><div class="cs-lbl">Remaining</div></div>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="prog-meta"><span>Budget used: ${pct}%</span><span>${Math.floor(camp.rem/camp.reward)} visits left</span></div>
+      </div>`;
+    }).join(''):'<div class="empty"><div class="empty-ico">📋</div><div style="font-weight:600;margin-bottom:4px">No campaigns yet</div></div>'}
+    <button class="new-camp-btn" onclick="openCampModal()">+ Create New Campaign</button>`;
+}
+
+// ── CAMPAIGN MODAL ──
+let curStep=1,campType=null;
+function openCampModal(){
+  curStep=1;campType=null;
+  ['cn','ca','cr','cb'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('c-ctask').style.display='none';
+  document.getElementById('cd').value='';
+  ['buy','photo','review','custom'].forEach(t=>document.getElementById('tc-'+t).className='tc');
+  stepTo(1);
+  document.getElementById('camp-modal').classList.add('open');
+}
+function closeCampModal(){document.getElementById('camp-modal').classList.remove('open');}
+function pickType(t){
+  campType=t;
+  ['buy','photo','review','custom'].forEach(k=>document.getElementById('tc-'+k).className='tc'+(k===t?' sel':''));
+  document.getElementById('c-ctask').style.display=t==='custom'?'block':'none';
+}
+function stepTo(n){
+  if(n>curStep){
+    if(curStep===1&&!document.getElementById('cn').value.trim()){toast('Enter a location name','err');return;}
+    if(curStep===2&&!campType){toast('Select a task type','err');return;}
+    if(curStep===3){
+      const r=parseInt(document.getElementById('cr').value)||0;
+      const b=parseInt(document.getElementById('cb').value)||0;
+      if(r<1){toast('Set reward per visit','err');return;}
+      if(b<r){toast('Budget must be ≥ reward','err');return;}
+      const dur=document.getElementById('cd').value;
+      document.getElementById('cf-n').textContent=document.getElementById('cn').value;
+      document.getElementById('cf-t').textContent=TL[campType]||campType;
+      document.getElementById('cf-r').textContent=r+' GEO';
+      document.getElementById('cf-b').textContent=b+' GEO';
+      document.getElementById('cf-v').textContent=Math.floor(b/r)+' est.';
+      document.getElementById('cf-d').textContent=dur?dur+' days':'Unlimited';
+    }
+  }
+  for(let i=1;i<=4;i++){
+    document.getElementById('sp'+i).className='sp'+(i===n?' on':'');
+    document.getElementById('sd'+i).className='sdot '+(i<n?'s-done':i===n?'s-now':'s-todo');
+  }
+  for(let i=1;i<=3;i++)document.getElementById('sl'+i).className='sline'+(i<n?' done':'');
+  curStep=n;
+}
+function launchCampaign(){
+  const name=document.getElementById('cn').value.trim();
+  const addr=document.getElementById('ca').value.trim();
+  const reward=parseInt(document.getElementById('cr').value)||0;
+  const budget=parseInt(document.getElementById('cb').value)||0;
+  const ctask=document.getElementById('c-ctask').value.trim();
+  S.camps.unshift({name,addr,reward,budget,rem:budget,visits:0,type:campType||'buy',ctask,active:true});
+  S.txs.unshift({k:'spend',n:'Campaign: '+name,a:budget,t:'Just now'});
+  save();closeCampModal();renderBiz();renderWallet();
+  toast('"'+name+'" campaign launched! 🚀');
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const earned=S.txs.filter(t=>t.k==='earn').reduce((a,t)=>a+t.a,0);
+  const e=id=>document.getElementById(id);
+  if(e('ps-earned'))e('ps-earned').textContent=earned;
+  if(e('ps-tasks'))e('ps-tasks').textContent=S.done.length;
+  if(e('ps-camps'))e('ps-camps').textContent=S.camps.length;
+  if(e('role-switch-lbl'))e('role-switch-lbl').textContent='Switch to '+(S.role==='user'?'Business':'User');
+  const av=e('p-av');
+  if(av)av.style.background=S.role==='business'?'linear-gradient(135deg,#b45309,#fbbf24)':'linear-gradient(135deg,var(--accent2),var(--accent3))';
+  const dt=e('dark-tog');if(dt)dt.className='tog'+(S.theme==='dark'?' on':'');
+}
+
+// ── TOAST ──
+let toastT;
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast'+(type==='err'?' err':'');
+  void el.offsetWidth;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2700);
+}
+
+// ── BOOT ──
+function boot(){
+  load();applyTheme();
+  S.done.forEach(i=>{const m=document.getElementById('m'+i);if(m)m.classList.add('visited');});
+  if(!S.seen){
+    document.getElementById('onboarding').className=S.theme==='light'?'light':'';
+    showOBSlide(0);
+  } else {
+    document.getElementById('onboarding').classList.add('hidden');
+    launchApp();
+  }
+}
+boot();
+</script>
+</body>
+</html>
